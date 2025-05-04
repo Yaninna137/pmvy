@@ -57,8 +57,14 @@ export function AuthProvider({ children }) {
     signInWithSession()
   }, [])
 
+  // Obtén el token de la sesión
+  const getSessionToken = () => {
+    const { data: session } = supabase.auth.getSession()
+    return session?.session?.access_token
+  }
+
   return (
-    <AuthContext.Provider value={{ user, perfil, empresa, loading, signInWithSession }}>
+    <AuthContext.Provider value={{ user, perfil, empresa, loading, signInWithSession, getSessionToken }}>
       {children}
     </AuthContext.Provider>
   )

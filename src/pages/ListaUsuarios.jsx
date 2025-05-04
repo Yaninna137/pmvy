@@ -1,125 +1,179 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '../supabaseClient';
-import { useAuth } from '../context/AuthContext';
+import { useState, useEffect } from 'react'
+import { supabase } from '../supabaseClient'
+import { useAuth } from '../context/AuthContext'
 
 export default function ListaUsuarios() {
-  const { empresa } = useAuth();
-  const [usuarios, setUsuarios] = useState([]);
-  const [editando, setEditando] = useState(null);
-  const [mensajeError, setMensajeError] = useState(null);
+  const { empresa, getSessionToken } = useAuth()
+  const [usuarios, setUsuarios] = useState([])
+  const [mensajeError, setMensajeError] = useState(null)
+  const [usuarioEditando, setUsuarioEditando] = useState(null)
+  const [form, setForm] = useState({ nombre: '' })
 
   useEffect(() => {
-    cargarUsuarios();
-  }, [empresa]);
+    cargarUsuarios()
+  }, [empresa])
 
   const cargarUsuarios = async () => {
-    if (!empresa?.id_empresa) return;
+    if (!empresa?.id_empresa) return
 
-    const { data: empleados, error: errorEmp } = await supabase
+    const { data: empleados } = await supabase
       .from('user_empleado')
       .select('*')
-      .eq('id_empresa', empresa.id_empresa);
+      .eq('id_empresa', empresa.id_empresa)
 
-    const { data: admins, error: errorAdmin } = await supabase
+    const { data: admins } = await supabase
       .from('user_administrado')
       .select('*')
-      .eq('id_empresa', empresa.id_empresa);
+      .eq('id_empresa', empresa.id_empresa)
 
-    if (errorEmp || errorAdmin) {
-      console.error('Error cargando usuarios:', errorEmp || errorAdmin);
-      return;
-    }
-
-    const empleadosConRol = (empleados || []).map(emp => ({ ...emp, tipo: 'empleado' }));
-    const adminsConRol = (admins || []).map(admin => ({ ...admin, tipo: 'admin' }));
-
-    setUsuarios([...empleadosConRol, ...adminsConRol]);
-  };
+    const empleadosConRol = (empleados || []).map(e => ({ ...e, tipo: 'empleado' }))
+    const adminsConRol = (admins || []).map(a => ({ ...a, tipo: 'admin' }))
+    setUsuarios([...empleadosConRol, ...adminsConRol])
+    setUsuarioEditando(null)
+  }
 
   const handleEliminar = async (usuario) => {
-    const confirmar = window.confirm(`¿Seguro que deseas eliminar a ${usuario.nombre}?`);
-
-    if (!confirmar) return;
-
-    if (usuario.tipo === 'admin') {
-      alert('No puedes eliminar a un administrador.');
-      return;
-    }
+    const confirmar = window.confirm(`¿Eliminar a ${usuario.nombre}?`)
+    if (!confirmar || usuario.tipo === 'admin') return
 
     try {
-      // 1. Eliminar de la tabla user_empleado
-      const { error: deleteError } = await supabase
-        .from('user_empleado')
-        .delete()
-        .eq('id_empleado', usuario.id_empleado);
-
-      if (deleteError) throw deleteError;
-      console.log('✔️ Empleado eliminado de la tabla user_empleado');
-
-      // 2. Eliminar del Auth con función Edge
-      const { data, error } = await supabase.functions.invoke('delete-user', {
-        body: { user_id: usuario.id_empleado },
-      });
-
-      if (error) {
-        console.error('❌ Error en delete-user:', error);
-        throw error;
-      }
-
-      console.log('✔️ Usuario eliminado de Auth:', data);
-
-      alert('Usuario eliminado correctamente.');
-      cargarUsuarios();
+      await supabase.from('user_empleado').delete().eq('id_empleado', usuario.id_empleado)
+      const token = getSessionToken()
+      await supabase.functions.invoke('delete-user', {
+        method: 'POST',
+        body: JSON.stringify({ user_id: usuario.id_empleado }),
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      alert('Usuario eliminado correctamente')
+      cargarUsuarios()
     } catch (error) {
-      console.error('Error al eliminar el usuario:', error);
-      setMensajeError('Hubo un problema al eliminar el usuario. Intenta de nuevo más tarde.');
+      setMensajeError('No se pudo eliminar el usuario. Intenta más tarde.')
     }
-  };
+  }
 
   const handleEditar = (usuario) => {
-    setEditando(usuario);
-  };
+    setUsuarioEditando(usuario)
+    setForm({ nombre: usuario.nombre })
+  }
+
+  const handleGuardar = async () => {
+    if (!usuarioEditando) return
+
+    try {
+      if (usuarioEditando.tipo === 'empleado') {
+        await supabase
+          .from('user_empleado')
+          .update({ nombre: form.nombre })
+          .eq('id_empleado', usuarioEditando.id_empleado)
+      } else {
+        await supabase
+          .from('user_administrado')
+          .update({ nombre: form.nombre })
+          .eq('id_administrador', usuarioEditando.id_administrador)
+      }
+
+      alert('Cambios guardados correctamente')
+      cargarUsuarios()
+    } catch (error) {
+      setMensajeError('No se pudieron guardar los cambios.')
+    }
+  }
 
   return (
-    <div>
-      <h2>Lista de Usuarios</h2>
+    <div className="card shadow p-4">
+      <h4 className="mb-3 text-danger">Lista de usuarios</h4>
 
-      {mensajeError && <div style={{ color: 'red' }}>{mensajeError}</div>}
+      {mensajeError && <div className="alert alert-danger">{mensajeError}</div>}
 
-      {editando && (
-        <div style={{ marginBottom: '1rem' }}>
-          <h3>Editando a: {editando.nombre}</h3>
-          <p>Email: {editando.email}</p>
-          <p>Contraseña: (no editable)</p>
-          <button onClick={() => setEditando(null)}>Cancelar</button>
+      {/* Formulario de edición */}
+      {usuarioEditando && (
+        <div className="mb-4 border p-3 rounded bg-light">
+          <h5 className="mb-3 text-primary">Editar Usuario</h5>
+          <div className="mb-2">
+            <label className="form-label">Nombre</label>
+            <input
+              className="form-control"
+              value={form.nombre}
+              onChange={(e) => setForm({ ...form, nombre: e.target.value })}
+            />
+          </div>
+          <div className="mb-2">
+            <label className="form-label">Correo</label>
+            <input
+              className="form-control"
+              value={usuarioEditando.email}
+              disabled
+            />
+          </div>
+          <div className="mb-2">
+            <label className="form-label">Rol</label>
+            <input
+              className="form-control"
+              value={usuarioEditando.tipo}
+              disabled
+            />
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Contraseña (UUID)</label>
+            <input
+              className="form-control"
+              value={
+                usuarioEditando.id_empleado ||
+                usuarioEditando.id_administrador
+              }
+              disabled
+            />
+          </div>
+          <button className="btn btn-success me-2" onClick={handleGuardar}>
+            Guardar
+          </button>
+          <button
+            className="btn btn-secondary"
+            onClick={() => setUsuarioEditando(null)}
+          >
+            Cancelar
+          </button>
         </div>
       )}
 
-      <table>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Correo</th>
-            <th>Rol</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {usuarios.map((u) => (
-            <tr key={u.id_empleado || u.id_administrador}>
-              <td>{u.nombre}</td>
-              <td>{u.email}</td>
-              <td>{u.tipo}</td>
-              <td>
-                <button onClick={() => handleEditar(u)}>Editar</button>
-                {u.tipo !== 'admin' && (
-                  <button onClick={() => handleEliminar(u)}>Eliminar</button>
-                )}
-              </td>
+      <div className="table-responsive">
+        <table className="table table-striped table-hover">
+          <thead className="table-dark">
+            <tr>
+              <th>Nombre</th>
+              <th>Correo</th>
+              <th>Rol</th>
+              <th>Acciones</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {usuarios.map((u) => (
+              <tr key={u.id_empleado || u.id_administrador}>
+                <td>{u.nombre}</td>
+                <td>{u.email}</td>
+                <td>{u.tipo}</td>
+                <td>
+                <button
+                  style={{ backgroundColor: '#000000', color: '#ffffff' }}
+                  className="btn btn-sm me-2"
+                  onClick={() => handleEditar(u)}
+                >
+                  Editar
+                </button>
+                  {u.tipo !== 'admin' && (
+                    <button
+                      className="btn btn-sm btn-danger"
+                      onClick={() => handleEliminar(u)}
+                    >
+                      Eliminar
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
-  );
+  )
 }
