@@ -31,7 +31,7 @@ export default function NavBar() {
           {perfil?.rol === 'admin' && (
             <>
               <Link className="text-white text-decoration-none" to="/registrousuario">Registro Usuario</Link>
-              <Link className="text-white text-decoration-none" to="/calendario">Calendario</Link>
+              <Link className="text-white text-decoration-none" to="/calendarioa">Calendario</Link>
               <Link className="text-white text-decoration-none" to="/turnosa">Editor de Turnos</Link> {/* ← nuevo link */}
             </>
           )}
@@ -39,7 +39,7 @@ export default function NavBar() {
           {perfil?.rol === 'empleado' && (
             <>
               <Link className="text-white text-decoration-none" to="/turnos">Turnos</Link>
-              <Link className="text-white text-decoration-none" to="/calendario">Calendario</Link>
+              <Link className="text-white text-decoration-none" to="/calendarioa">Calendario</Link>
               <Link className="text-white text-decoration-none" to="/notificaciones">Notificaciones</Link> {/* ← NUEVO */}
             </>
           )}
