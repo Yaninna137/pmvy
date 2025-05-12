@@ -10,46 +10,28 @@
 - Backend (funciones protegidas como eliminación de usuarios)  
 - React Router Dom  
 - Context API (AuthContext para autenticación global)
+- Google Count + Google calenadario
 
 ## 📌 Avance actual
 
 Durante esta etapa se lograron las siguientes funcionalidades:
-
-- Creación de una nueva base de datos llamada `horario-laboral` con seguridad aplicada (RLS y triggers).
-- Registro e inicio de sesión con Supabase Auth, sin verificación de correo.
-- Asignación de roles (empleado o administrador) y navegación protegida.
-- Implementación de formularios funcionales para agregar usuarios.
-- Edición y eliminación controlada de usuarios empleados (administradores no se pueden eliminar).
-- Confirmación antes de eliminar usuarios y sincronización con Supabase Auth y la base de datos.
-- Recarga automática de la tabla tras modificaciones.
-- Interfaz estilizada con Bootstrap.
-- Backend conectado para validar acciones sensibles (borrado, etc.).
-- Estructura limpia, modular y orientada al mantenimiento.
-- Página subida y funcionando correctamente en Vercel.
-
-🔗 **Link del sitio en Vercel**:  
-👉 [https://pmvyyaninna1377.vercel.app](https://pmvyyaninna1377.vercel.app)
-
-📽️ **Video demostrativo y visualización de base de datos**:  
-👉 [Carpeta Drive con videos y documentación](https://drive.google.com/drive/folders/1c-OFo0TUtbZXkLkIq47-ZQAMmzSgzyuO?usp=sharing)
+- Tener Visualización de eventos(Turnos)
+- Tener conexión con Api calendario
+- Permitir crear y visualizar eventos
+- Ordenar arhcivos(colocar las paginas en sus respectiva carpeta).
+- Limpiar el proyecto (borrando paginas no funcionales).
 
 ## 📂 Estructura actual
 
-- `src/pages` → Páginas del sistema (Login, Registro, Panel, etc.)
-- `src/components` → NavBar, formularios, y componentes reutilizables
-- `src/context/AuthContext.jsx` → Lógica de autenticación y usuario global
+Modificado:
+- `src/pages` → Páginas del sistema formato global tanto empleado y admi(Login,Panel, etc.)
+- `src/context/AuthContext.jsx` → Lógica de autenticación y usuario global + `GoogleContex.jsx` archivo para la autentificacion con google cloud.
+Agregado:
+- `src/Emp` Paginas de solos los empleados (Notificación)
+- `src/Adm` Paginas de solo el admintrador (RegistroUsers)
+Sin mofificar 
 - `src/backend` → Lógica de comunicación con Supabase
-
-## 📌 Entrega final (por implementar)
-
-- Funcionalidades completas para las páginas de **empleados** y **administradores**.
-- Conexión con una **API externa** para gestión de calendarios y turnos.
-- Mejoras en la experiencia de usuario y mensajes de validación más claros.
-- Optimización final del código y documentación completa.
-
-## 🧠 Notas
-
-Este avance se centró en lograr un sistema funcional, estable y real, dejando atrás errores anteriores. A pesar de dificultades técnicas con versiones pasadas, este nuevo enfoque permitió construir una base sólida y mantenible, con apertura al aprendizaje continuo.
-
----
-
+Archivo modificado:
+- `Login.jsx` Se tubo que agregar el GoogleContex.jsx, para poder trabajar sus datos.
+- `main.jsx` Importamos el archivo GoogleContext.jsx y englobamos a toda nuestra app (con el mismo proposito que AuthContext.jsx).
+- `./pages/..` Unos pequeños cambios en algunas paginas.
