@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
-import NavBar from "./NavBar";
+import NavBar from "../pages/NavBar";
 import ListaUsuarios from './ListaUsuarios'
 
 export default function RegistroUsuario() {

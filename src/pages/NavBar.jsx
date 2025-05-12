@@ -11,7 +11,6 @@ export default function NavBar() {
   const handleLogout = async () => {
     await supabase.auth.signOut()
     navigate('/login')
-    window.location.reload()
   }
 
   if (loading) return null
@@ -31,16 +30,17 @@ export default function NavBar() {
           {perfil?.rol === 'admin' && (
             <>
               <Link className="text-white text-decoration-none" to="/registrousuario">Registro Usuario</Link>
-              <Link className="text-white text-decoration-none" to="/calendarioa">Calendario</Link>
-              <Link className="text-white text-decoration-none" to="/turnosa">Editor de Turnos</Link> {/* ← nuevo link */}
+              <Link className="text-white text-decoration-none" to="/calendariogoogle">Calendario</Link>
+              <Link className="text-white text-decoration-none" to="/creareventosgoogle">Crear Evento (Turnos)</Link>
+              <Link className="text-white text-decoration-none" to="/listaeventosgoogle">Ver Eventos(Turnos)</Link>    
             </>
           )}
 
           {perfil?.rol === 'empleado' && (
             <>
-              <Link className="text-white text-decoration-none" to="/turnos">Turnos</Link>
-              <Link className="text-white text-decoration-none" to="/calendarioa">Calendario</Link>
-              <Link className="text-white text-decoration-none" to="/notificaciones">Notificaciones</Link> {/* ← NUEVO */}
+              <Link className="text-white text-decoration-none" to="/calendariogoogle">Calendario</Link>
+              <Link className="text-white text-decoration-none" to="/listaeventosgoogle">Ver Eventos(Tunos)</Link>  
+              <Link className="text-white text-decoration-none" to="/notificaciones">Notificaciones</Link>   
             </>
           )}
 
@@ -62,18 +62,21 @@ export default function NavBar() {
 
           {perfil?.rol === 'admin' && (
             <>
-              <Link className="text-white text-decoration-none" to="/turnosa" onClick={() => setOpen(false)}>Editor de Turnos</Link> {/* ← nuevo link */}
               <Link className="text-white text-decoration-none" to="/registrousuario" onClick={() => setOpen(false)}>Registro Usuario</Link>
-              <Link className="text-white text-decoration-none" to="/calendarioa" onClick={() => setOpen(false)}>Calendario</Link>
+              <Link className="text-white text-decoration-none" to="/calendariogoogle" onClick={() => setOpen(false)}>Calendario</Link>
+              <Link className="text-white text-decoration-none" to="/creareventosgoogle" onClick={() => setOpen(false)}>EditorEventos(Turnos)</Link>
+              <Link className="text-white text-decoration-none" to="/listaeventosgoogle" onClick={() => setOpen(false)}>Eventos(Tunos)</Link>
+
 
             </>
           )}
 
           {perfil?.rol === 'empleado' && (
             <>
-              <Link className="text-white text-decoration-none" to="/turnos" onClick={() => setOpen(false)}>Turnos</Link>
-              <Link className="text-white text-decoration-none" to="/calendarioa" onClick={() => setOpen(false)}>Calendario</Link>
-              <Link className="text-white text-decoration-none" to="/notificaciones" onClick={() => setOpen(false)}>Notificaciones</Link> {/* ← NUEVO */}
+              {/* <Link className="text-white text-decoration-none" to="/turnos" onClick={() => setOpen(false)}>Turnos</Link> */}
+              <Link className="text-white text-decoration-none" to="/calendariogoogle" onClick={() => setOpen(false)}>CalendarioGoogle</Link>
+              <Link className="text-white text-decoration-none" to="/notificaciones" onClick={() => setOpen(false)}>Notificaciones</Link>
+              <Link className="text-white text-decoration-none" to="/listaeventosgoogle" onClick={() => setOpen(false)}>Eventos</Link>
             </>
           )}
 

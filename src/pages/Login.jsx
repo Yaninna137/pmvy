@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../supabaseClient";
+//import { useGoogle } from "../context/GoogleContext";   // Importar Api de Google
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const navigate = useNavigate()
   const [isRegister, setIsRegister] = useState(false);
+  // const { initializeGoogle } = useGoogle();
   const [step, setStep] = useState("start");
   const [form, setForm] = useState({
     nombre: "",
@@ -33,6 +35,7 @@ export default function Login() {
       console.log('Error al iniciar sesión:', error.message);
     } else {
       await signInWithSession(); // Esto actualiza el contexto automáticamente
+      // initializeGoogle(); // activa la verificación para Calendar si no se ha dado permiso
       console.log('Sesión iniciada',data);
       navigate('/panel')
     }
